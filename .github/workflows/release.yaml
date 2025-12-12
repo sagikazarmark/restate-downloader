@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  publish:
-    name: Publish
+  Build:
+    name: Build
     runs-on: ubuntu-latest
 
     permissions:
