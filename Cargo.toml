@@ -27,3 +27,4 @@ publish = false
 sign-commit = true
 sign-tag = true
 tag-message = "Release {{version}}"
+tag-prefix = ""
