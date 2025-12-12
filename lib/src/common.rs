@@ -46,15 +46,11 @@ impl TryFrom<RequestOptions> for HeaderMap {
 #[serde(rename_all = "camelCase")]
 pub struct OutputOptions {
     /// Set the content type of the downloaded file
-    #[serde(default, skip_serializing_if = "is_false")]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub set_content_type: bool,
     /// Content type override for the downloaded file (falls back to the content type of the downloaded file)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content_type: Option<String>,
-}
-
-fn is_false(b: &bool) -> bool {
-    !b
 }
 
 /// Response from the download operation
@@ -103,7 +99,9 @@ pub(crate) fn filename_from_response(response: &Response) -> Result<String> {
 }
 
 fn filename_from_url(url: &Url) -> Option<String> {
-    url.path_segments().and_then(|mut s| s.next_back()).map(String::from)
+    url.path_segments()
+        .and_then(|mut s| s.next_back())
+        .map(String::from)
 }
 
 fn filename_from_headers(headers: &HeaderMap) -> Option<String> {
@@ -122,18 +120,19 @@ pub(crate) async fn create_writer(
     let mut writer_builder = operator.writer_with(filepath.as_str());
 
     if let Some(output) = output
-        && output.set_content_type {
-            let content_type = output.content_type.or_else(|| {
-                headers
-                    .get("content-type")
-                    .and_then(|ct| ct.to_str().ok())
-                    .map(String::from)
-            });
+        && output.set_content_type
+    {
+        let content_type = output.content_type.or_else(|| {
+            headers
+                .get("content-type")
+                .and_then(|ct| ct.to_str().ok())
+                .map(String::from)
+        });
 
-            if let Some(ct) = content_type {
-                writer_builder = writer_builder.content_type(&ct);
-            }
+        if let Some(ct) = content_type {
+            writer_builder = writer_builder.content_type(&ct);
         }
+    }
 
     writer_builder
         .await
