@@ -81,7 +81,7 @@ impl DownloaderImpl {
             // Extract filename from URL path and remove it from the URL
             let filename = output_url
                 .path_segments()
-                .and_then(|s| s.last())
+                .and_then(|mut s| s.next_back())
                 .filter(|s| !s.is_empty())
                 .map(String::from)
                 .unwrap_or_else(|| "download".into());

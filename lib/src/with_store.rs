@@ -98,9 +98,9 @@ impl Downloader for DownloaderImpl {
 #[schemars(transparent)]
 pub struct PosixPath(String);
 
-impl Into<UnixPathBuf> for PosixPath {
-    fn into(self) -> UnixPathBuf {
-        self.as_unix_path()
+impl From<PosixPath> for UnixPathBuf {
+    fn from(val: PosixPath) -> Self {
+        val.as_unix_path()
     }
 }
 

@@ -103,7 +103,7 @@ pub(crate) fn filename_from_response(response: &Response) -> Result<String> {
 }
 
 fn filename_from_url(url: &Url) -> Option<String> {
-    url.path_segments().and_then(|s| s.last()).map(String::from)
+    url.path_segments().and_then(|mut s| s.next_back()).map(String::from)
 }
 
 fn filename_from_headers(headers: &HeaderMap) -> Option<String> {
@@ -121,8 +121,8 @@ pub(crate) async fn create_writer(
 ) -> Result<Writer, anyhow::Error> {
     let mut writer_builder = operator.writer_with(filepath.as_str());
 
-    if let Some(output) = output {
-        if output.set_content_type {
+    if let Some(output) = output
+        && output.set_content_type {
             let content_type = output.content_type.or_else(|| {
                 headers
                     .get("content-type")
@@ -134,7 +134,6 @@ pub(crate) async fn create_writer(
                 writer_builder = writer_builder.content_type(&ct);
             }
         }
-    }
 
     writer_builder
         .await
