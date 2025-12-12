@@ -20,8 +20,6 @@ async fn main() {
         .extract()
         .unwrap();
 
-    print!("Settings: {:?}", settings);
-
     // Get port from environment variable or use default
     let port = std::env::var("PORT")
         .ok()
@@ -29,7 +27,6 @@ async fn main() {
         .unwrap_or(9080);
 
     let bind_addr = format!("0.0.0.0:{}", port);
-    tracing::info!("Starting file transfer service on {}", bind_addr);
 
     let client = reqwest::Client::builder()
         // .user_agent(&config.user_agent)
