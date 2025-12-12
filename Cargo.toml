@@ -1,0 +1,23 @@
+[workspace]
+members = ["lib", "bin"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+description = "Restate service for downloading files"
+license = "MIT"
+repository = "https://github.com/sagikazarmark/restate-downloader"
+homepage = "https://github.com/sagikazarmark/restate-downloader"
+
+[workspace.dependencies]
+restate-downloader = { path = "lib" }
+
+humantime-serde = "1.1.1"
+opendal = { version = "0.55" }
+reqwest = { version = "0.12", default-features = false, features = [ "rustls-tls", "stream" ] }
+schemars = { version = "1.1", features = ["url2"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+restate-sdk = { version = "0.7", features = ["schemars"] }
+url = { version = "2.5", features = ["serde"] }
