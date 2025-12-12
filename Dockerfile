@@ -12,12 +12,19 @@ COPY Cargo.toml Cargo.lock ./
 COPY bin/Cargo.toml ./bin/
 COPY lib/Cargo.toml ./lib/
 
-RUN mkdir -p bin/src && echo "// dummy" > bin/src/main.rs
+RUN mkdir -p bin/src && echo "fn main() {}" > bin/src/main.rs
 RUN mkdir -p lib/src && echo "// dummy" > lib/src/lib.rs
 
 RUN cargo fetch --locked
 
 ARG TARGETPLATFORM
+
+RUN xx-apt-get update && \
+    xx-apt-get install -y \
+    gcc \
+    g++ \
+    libc6-dev \
+    pkg-config
 
 COPY . ./
 
