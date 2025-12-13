@@ -57,6 +57,9 @@ pub struct OutputOptions {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadResponse {
+    /// Path to the downloaded file
+    pub path: String,
+    /// Size of the downloaded file
     pub size: u64,
 }
 
@@ -114,10 +117,10 @@ fn filename_from_headers(headers: &HeaderMap) -> Option<String> {
 pub(crate) async fn create_writer(
     operator: &Operator,
     headers: &HeaderMap,
-    filepath: String,
+    path: &str,
     output: Option<OutputOptions>,
 ) -> Result<Writer, anyhow::Error> {
-    let mut writer_builder = operator.writer_with(filepath.as_str());
+    let mut writer_builder = operator.writer_with(path);
 
     if let Some(output) = output
         && output.set_content_type
@@ -172,10 +175,10 @@ where
 pub async fn process_download(
     operator: &Operator,
     response: reqwest::Response,
-    filepath: String,
+    path: &str,
     output: Option<OutputOptions>,
 ) -> Result<u64, HandlerError> {
-    let writer = create_writer(operator, response.headers(), filepath, output).await?;
+    let writer = create_writer(operator, response.headers(), path, output).await?;
 
     let stream = response.bytes_stream();
 
@@ -186,9 +189,6 @@ pub async fn process_download(
     Ok(size)
 }
 
-pub fn terminal_error(err: anyhow::Error) -> TerminalError {
-    TerminalError::new(err.to_string())
-}
 /// Convert an error to a terminal HandlerError
 pub fn terminal<E: std::fmt::Display>(e: E) -> HandlerError {
     TerminalError::new(e.to_string()).into()

@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 use anyhow::Result;
 use opendal::Operator;
 use reqwest::Response;
-use restate_sdk::{context::Context, errors::HandlerError, prelude::*, serde::Json};
+use restate_sdk::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use typed_path::UnixPathBuf;
@@ -21,8 +21,8 @@ pub struct DownloadRequest {
     /// URL to download from
     pub url: Url,
     /// Request options
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request: Option<RequestOptions>,
+    #[serde(rename = "request", skip_serializing_if = "Option::is_none")]
+    pub request_options: Option<RequestOptions>,
     /// Output options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output: Option<OutputOptions>,
@@ -31,7 +31,7 @@ pub struct DownloadRequest {
 fn example_download_request() -> DownloadRequest {
     DownloadRequest {
         url: Url::parse("https://example.com/file.pdf").unwrap(),
-        request: None,
+        request_options: None,
         output: None,
     }
 }
@@ -64,18 +64,20 @@ impl DownloaderImpl {
         Self { client, operator }
     }
 
-    async fn _download(&self, request: DownloadRequest) -> Result<u64, HandlerError> {
-        let response = send_request(&self.client, request.url, request.request).await?;
+    async fn _download(&self, request: DownloadRequest) -> Result<DownloadResponse, HandlerError> {
+        let response = send_request(&self.client, request.url, request.request_options).await?;
 
-        let filepath = resolve_filepath(request.output.clone().and_then(|o| o.path), &response)?;
+        let path = resolve_path(request.output.clone().and_then(|o| o.path), &response)?;
 
-        process_download(
+        let size = process_download(
             &self.operator,
             response,
-            filepath,
+            path.as_str(),
             request.output.map(|o| o.common),
         )
-        .await
+        .await?;
+
+        Ok(DownloadResponse { path, size })
     }
 }
 
@@ -85,11 +87,9 @@ impl Downloader for DownloaderImpl {
         ctx: Context<'_>,
         request: Json<DownloadRequest>,
     ) -> Result<Json<DownloadResponse>, HandlerError> {
-        let request = request.into_inner();
-
-        let size = ctx.run(|| self._download(request)).await?;
-
-        Ok(Json(DownloadResponse { size }))
+        Ok(ctx
+            .run(async || self._download(request.into_inner()).await.map(Json))
+            .await?)
     }
 }
 
@@ -110,7 +110,7 @@ impl PosixPath {
     }
 }
 
-fn resolve_filepath(path: Option<PosixPath>, response: &Response) -> Result<String> {
+fn resolve_path(path: Option<PosixPath>, response: &Response) -> Result<String> {
     let Some(path) = path else {
         return filename_from_response(response);
     };

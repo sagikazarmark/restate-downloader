@@ -41,7 +41,7 @@ async fn main() {
 
     let mut endpoint = Endpoint::builder();
 
-    if let Some(store_url) = settings.store.url {
+    if let Some(store_url) = settings.store.uri {
         let operator = Operator::from_uri(store_url.to_string())
             .unwrap()
             .layer(LoggingLayer::default());

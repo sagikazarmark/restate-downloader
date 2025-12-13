@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  dotenv.enable = true;
+
   packages = with pkgs; [
     minio-client
   ];

@@ -17,7 +17,7 @@ pub struct Settings {
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct StoreConfig {
     #[serde(default)]
-    pub url: Option<Url>,
+    pub uri: Option<Url>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
