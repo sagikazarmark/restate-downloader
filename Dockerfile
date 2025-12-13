@@ -28,6 +28,8 @@ RUN xx-apt-get update && \
 
 COPY . ./
 
+ARG RESTATE_SERVICE_NAME
+
 RUN xx-cargo build --release --bin restate-downloader
 RUN xx-verify ./target/$(xx-cargo --print-target-triple)/release/restate-downloader
 RUN cp -r ./target/$(xx-cargo --print-target-triple)/release/restate-downloader /usr/local/bin/restate-downloader
@@ -35,7 +37,7 @@ RUN cp -r ./target/$(xx-cargo --print-target-triple)/release/restate-downloader 
 
 FROM alpine:3.23.0@sha256:51183f2cfa6320055da30872f211093f9ff1d3cf06f39a0bdb212314c5dc7375
 
-COPY --from=builder /usr/local/bin/restate-downloader /usr/local/bin/restate-downloader
+COPY --from=builder /usr/local/bin/restate-downloader /usr/local/bin/
 
 ENV RUST_LOG=info
 

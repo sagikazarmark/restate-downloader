@@ -47,7 +47,13 @@ pub struct OutputOptions {
     common: common::OutputOptions,
 }
 
-#[restate_sdk::service]
+#[allow(dead_code)]
+const SERVICE_NAME: &str = match option_env!("RESTATE_SERVICE_NAME") {
+    Some(name) => name,
+    None => "Downloader",
+};
+
+#[restate_sdk::service(name = SERVICE_NAME)]
 pub trait Downloader {
     async fn download(
         request: Json<DownloadRequest>,
