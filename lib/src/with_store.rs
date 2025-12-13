@@ -5,8 +5,8 @@ use opendal::Operator;
 use reqwest::Response;
 use restate_sdk::prelude::*;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use typed_path::UnixPathBuf;
+use serde::{Deserialize, Deserializer, Serialize};
+use typed_path::{UnixPath, UnixPathBuf};
 use url::Url;
 
 use crate::common::{
@@ -99,7 +99,7 @@ impl Downloader for DownloaderImpl {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(transparent)]
 #[schemars(transparent)]
 pub struct PosixPath(String);
@@ -113,6 +113,22 @@ impl From<PosixPath> for UnixPathBuf {
 impl PosixPath {
     pub fn as_unix_path(&self) -> UnixPathBuf {
         UnixPathBuf::from(&self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for PosixPath {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        // Validate using join_checked
+        UnixPath::new("")
+            .join_checked(&s)
+            .map_err(|e| serde::de::Error::custom(format!("Invalid path: {}", e)))?;
+
+        Ok(PosixPath(s))
     }
 }
 
