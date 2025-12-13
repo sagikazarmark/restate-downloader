@@ -1800,7 +1800,7 @@ dependencies = [
 
 [[package]]
 name = "restate-downloader"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1819,7 +1819,7 @@ dependencies = [
 
 [[package]]
 name = "restate-downloader-bin"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "figment",
  "humantime-serde",
