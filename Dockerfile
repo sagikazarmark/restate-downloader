@@ -35,7 +35,8 @@ RUN xx-verify ./target/$(xx-cargo --print-target-triple)/release/restate-downloa
 RUN cp -r ./target/$(xx-cargo --print-target-triple)/release/restate-downloader /usr/local/bin/restate-downloader
 
 
-FROM alpine:3.23.0@sha256:51183f2cfa6320055da30872f211093f9ff1d3cf06f39a0bdb212314c5dc7375
+# FROM alpine:3.23.0@sha256:51183f2cfa6320055da30872f211093f9ff1d3cf06f39a0bdb212314c5dc7375
+FROM debian:13.2-slim@sha256:e711a7b30ec1261130d0a121050b4ed81d7fb28aeabcf4ea0c7876d4e9f5aca2
 
 COPY --from=builder /usr/local/bin/restate-downloader /usr/local/bin/
 
