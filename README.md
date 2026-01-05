@@ -1,3 +1,6 @@
+> [!WARNING]  
+> Deprecated: use [restate-opendal](https://github.com/sagikazarmark/restate-opendal) instead.
+
 # Restate service for downloading files
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/sagikazarmark/restate-downloader/ci.yaml?style=flat-square)
